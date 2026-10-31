@@ -5,7 +5,7 @@
 
 Финальный прогон по протоколу жюри: `harness/run_task.py --repeats 2` (база, решение, решение,
 база в одной сессии Kaggle T4) — сохранённая версия публичного ноутбука
-https://www.kaggle.com/code/danieliskrin30/soup-kernel-challenge-ida, медианы из `runs/result.json`:
+https://www.kaggle.com/code/danieliskrin/soup-kernel-challenge-ida, медианы из `runs/result.json`:
 
 | Показатель | База Soup | Наше решение | Отношение |
 |---|---|---|---|
@@ -114,7 +114,7 @@ fp16-логиты, считает в fp32 в регистрах. Градиен�
 
 ## 2. Как запустить
 
-Публичный Kaggle-ноутбук (Run All без правок, с сохранёнными результатами): **https://www.kaggle.com/code/danieliskrin30/soup-kernel-challenge-ida**
+Публичный Kaggle-ноутбук (Run All без правок, с сохранёнными результатами): **https://www.kaggle.com/code/danieliskrin/soup-kernel-challenge-ida**
 Ноутбук клонирует публичное зеркало того же коммита `github.com/danieliskrin30-lang/soup-kernel-v7`, чтобы запускаться без
 наших токенов; основной репозиторий платформы — `github.com/BAITC-Hacks/hack-8539eaba-id-automation`.
 Финальный коммит (публичное зеркало того же кода): **https://github.com/danieliskrin30-lang/soup-kernel-v7/commit/655a25344658badfdee1b8107cee6a9066ab68ef**

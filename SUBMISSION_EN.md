@@ -7,7 +7,7 @@ Track **AI 1 — AI Engineering by Soup**, task **Soup Kernel Challenge**, Decen
 
 - Repository, final commit (public mirror of the same code): `https://github.com/danieliskrin30-lang/soup-kernel-v7/commit/655a25344658badfdee1b8107cee6a9066ab68ef`
 - Public Kaggle notebook, saved version (`COMMIT` in it = the sha above; the same link is in
-  `README.md`): https://www.kaggle.com/code/danieliskrin30/soup-kernel-challenge-ida
+  `README.md`): https://www.kaggle.com/code/danieliskrin/soup-kernel-challenge-ida
 - Demo video (up to 3 minutes): `<VIDEO_URL>`
 - Presentation: `<SLIDES_URL>`
 

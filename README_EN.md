@@ -5,7 +5,7 @@
 
 Final run with the jury protocol: `harness/run_task.py --repeats 2` (base, solution, solution,
 base in one Kaggle T4 session) — the saved version of the public notebook
-https://www.kaggle.com/code/danieliskrin30/soup-kernel-challenge-ida, medians from `runs/result.json`:
+https://www.kaggle.com/code/danieliskrin/soup-kernel-challenge-ida, medians from `runs/result.json`:
 
 | Metric | Base Soup | Our solution | Ratio |
 |---|---|---|---|
@@ -115,7 +115,7 @@ loaded — check 2.
 
 ## 2. How to run
 
-Public Kaggle notebook (Run All without edits, results saved): **https://www.kaggle.com/code/danieliskrin30/soup-kernel-challenge-ida**
+Public Kaggle notebook (Run All without edits, results saved): **https://www.kaggle.com/code/danieliskrin/soup-kernel-challenge-ida**
 The notebook clones the public mirror of the same commit, `github.com/danieliskrin30-lang/soup-kernel-v7`, so it runs without our
 tokens; the platform repository is `github.com/BAITC-Hacks/hack-8539eaba-id-automation`.
 Final commit (public mirror of the same code): **https://github.com/danieliskrin30-lang/soup-kernel-v7/commit/655a25344658badfdee1b8107cee6a9066ab68ef**

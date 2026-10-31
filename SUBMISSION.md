@@ -6,7 +6,7 @@
 
 - Репозиторий, финальный коммит (публичное зеркало того же кода): `https://github.com/danieliskrin30-lang/soup-kernel-v7/commit/655a25344658badfdee1b8107cee6a9066ab68ef`
 - Публичный Kaggle-ноутбук, сохранённая версия (`COMMIT` внутри = хеш выше; та же ссылка в
-  `README.md`): https://www.kaggle.com/code/danieliskrin30/soup-kernel-challenge-ida
+  `README.md`): https://www.kaggle.com/code/danieliskrin/soup-kernel-challenge-ida
 - Демо-видео (до 3 минут): `<VIDEO_URL>`
 - Презентация: `<SLIDES_URL>`
 
