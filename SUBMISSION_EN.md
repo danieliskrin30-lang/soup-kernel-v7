@@ -75,7 +75,7 @@ and code v4–v7. Details: `README_EN.md`, section 4.
 |---|---|---|---|
 | Time of `soup train`, s (median) | 86.27 | 66.10 | speedup ×1.305 |
 | Peak GPU memory, MiB | 14 345 | 5 879 | base/ours ×2.440 |
-| Eval loss (public rows) | 2.04962 | 2.04962 | +0.000% vs base |
+| Eval loss (public rows) | 2.04962 | 2.04962 | identical to 5 decimals |
 
 Spread over repeats: base 88.78 / 83.75 s (5.8%), solution 65.80 / 66.40 s (0.9%); the memory peak
 is identical in both repeats (14 345 and 5 879 MiB).
@@ -92,7 +92,7 @@ is identical in both repeats (14 345 and 5 879 MiB).
 Which operations were replaced and why (NF4 unpacking in both passes, RMSNorm, attention
 prologue with `is_causal` on cutlass, cross-entropy with an in-place gradient, entropy + argmax;
 redundant fp32 copies of the embedding, MLP and logits), how the kernels work, results vs the base
-(×1.305 time, ×2.440 memory, +0.000% quality, our kernels 9.1%, T4 spread), limitations and next
+(×1.305 time, ×2.440 memory, quality identical to 5 decimals, our kernels 9.1%, T4 spread), limitations and next
 steps.
 
 ## Limitations

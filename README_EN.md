@@ -11,7 +11,7 @@ https://www.kaggle.com/code/danieliskrin/soup-kernel-challenge-ida, medians from
 |---|---|---|---|
 | `soup train` time, s (median of 2 runs) | 86.27 | **66.10** | **speedup 1.305×** |
 | Peak GPU memory (`nvidia-smi`), MiB | 14 345 | **5 879** | **base/ours 2.440×** |
-| Eval loss (public rows) | 2.04962 | 2.04962 | +0.000% |
+| Eval loss (public rows) | 2.04962 | 2.04962 | identical to 5 decimals |
 | Share of our kernels in training time (steps 3+) | — | **9.1%** (lower of two) | threshold ≥5% |
 | `harness/check_rules.py` | — | **10/10 PASS** | — |
 | Soup tests (`tests/`) / our tests (`pytest solution`) | 79 | **79 passed / 70 passed** | — |
@@ -152,7 +152,7 @@ search: `python solution/bench_c.py` (not a test).
 | `soup train` time, s, median | 86.27 | 66.10 | speedup **1.305×** (−20.17 s) |
 | Training loop `train_loop_s`, s, median | 58.57 | 42.30 | 1.385× |
 | Peak GPU memory, MiB (max over runs) | 14 345 | 5 879 | base/ours **2.440×** (−8 466 MiB) |
-| Eval loss (public rows) | 2.04962 | 2.04962 | +0.000% |
+| Eval loss (public rows) | 2.04962 | 2.04962 | identical to 5 decimals |
 | Loss curve vs base (check 6) | — | PASS | tolerance 1% / 3% |
 | Share of our kernels (check 4) | — | 9.1% (runs: 9.24% and 9.11%) | threshold 5% |
 | Time / memory vs base (check 8) | — | ×0.766 / ×0.410 | tolerance ×1.10 |
@@ -225,7 +225,7 @@ rounding moved (`test_v4.py::test_mlp_fp16_bitwise_equal`, `torch.equal`).
 **Where results are not bit-identical:** SDPA with `is_causal` vs masked SDPA — fp16 rounding
 level on real rows; prologue dk/dv — summation order over 6 heads; cross-entropy, entropy and
 RMSNorm — fp32 summation order. All within the tolerances of checks 5–7 (result: eval loss
-+0.000% vs base).
+identical to 5 decimals).
 
 **`precompile.py`.** Our kernels compile in a separate thread **of the same process** while Soup
 loads the model (done in ~9 s, before `Trainer.__init__`). The Triton cache is empty in every run
