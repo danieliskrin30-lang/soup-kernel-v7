@@ -7,8 +7,9 @@
 - Репозиторий, финальный коммит (публичное зеркало того же кода): `https://github.com/danieliskrin30-lang/soup-kernel-v7/commit/655a25344658badfdee1b8107cee6a9066ab68ef`
 - Публичный Kaggle-ноутбук, сохранённая версия (`COMMIT` внутри = хеш выше; та же ссылка в
   `README.md`): https://www.kaggle.com/code/danieliskrin/soup-kernel-challenge-ida
-- Демо-видео (до 3 минут): `<VIDEO_URL>`
-- Презентация: `<SLIDES_URL>`
+- Демо-видео (до 3 минут): https://youtu.be/bqR89mPVsHw
+- Презентация: https://drive.google.com/file/d/1spAnVRGu5I5uxbZJCwzTopCJaNO9t12c/view?usp=sharing
+  (копия файла в репозитории: `presentation_v7.pptx`)
 
 Репозиторий и зеркало. Основной репозиторий платформы — `github.com/BAITC-Hacks/hack-8539eaba-id-automation` (доступ для жюри
 запрошен у организаторов). Публичное зеркало того же коммита — `github.com/danieliskrin30-lang/soup-kernel-v7`; публичный
@@ -81,7 +82,7 @@ fp16, MLP в fp16, логиты не переводятся в fp32, копии 
       тестов пройдены
 - [x] `README.md` переписан под решение: что сделано, как запустить, результаты, ограничения
 - [x] Публичный ноутбук сохранён с результатами (ссылка выше)
-- [ ] Вставлены `<COMMIT_SHA>`, `<VIDEO_URL>`, `<SLIDES_URL>`
+- [x] Вставлены ссылки: коммит зеркала, Kaggle-ноутбук, демо-видео, презентация
 
 ## Что покрывает презентация
 

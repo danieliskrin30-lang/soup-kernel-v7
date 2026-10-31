@@ -8,8 +8,9 @@ Track **AI 1 — AI Engineering by Soup**, task **Soup Kernel Challenge**, Decen
 - Repository, final commit (public mirror of the same code): `https://github.com/danieliskrin30-lang/soup-kernel-v7/commit/655a25344658badfdee1b8107cee6a9066ab68ef`
 - Public Kaggle notebook, saved version (`COMMIT` in it = the sha above; the same link is in
   `README.md`): https://www.kaggle.com/code/danieliskrin/soup-kernel-challenge-ida
-- Demo video (up to 3 minutes): `<VIDEO_URL>`
-- Presentation: `<SLIDES_URL>`
+- Demo video (up to 3 minutes): https://youtu.be/bqR89mPVsHw
+- Presentation: https://drive.google.com/file/d/1spAnVRGu5I5uxbZJCwzTopCJaNO9t12c/view?usp=sharing
+  (a copy of the file is in the repository: `presentation_v7.pptx`)
 
 Repository and mirror. The platform repository is `github.com/BAITC-Hacks/hack-8539eaba-id-automation` (jury access requested from
 the organizers). A public mirror of the same commit is `github.com/danieliskrin30-lang/soup-kernel-v7`; the public notebook
@@ -85,7 +86,7 @@ is identical in both repeats (14 345 and 5 879 MiB).
       tests pass
 - [x] README rewritten for our solution: what we did, how to run it, results, limits
 - [x] Public notebook saved with results (link above)
-- [ ] `<COMMIT_SHA>`, `<VIDEO_URL>`, `<SLIDES_URL>` filled in
+- [x] Links filled in: mirror commit, Kaggle notebook, demo video, presentation
 
 ## Presentation covers
 
