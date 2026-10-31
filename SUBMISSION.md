@@ -4,11 +4,15 @@
 
 ## Ссылки
 
-- Репозиторий, финальный коммит: `https://github.com/BAITC-Hacks/hack-8539eaba-id-automation/commit/<COMMIT_SHA>`
+- Репозиторий, финальный коммит (публичное зеркало того же кода): `https://github.com/danieliskrin30-lang/soup-kernel-v7/commit/655a25344658badfdee1b8107cee6a9066ab68ef`
 - Публичный Kaggle-ноутбук, сохранённая версия (`COMMIT` внутри = хеш выше; та же ссылка в
-  `README.md`): `<NOTEBOOK_URL>`
+  `README.md`): https://www.kaggle.com/code/danieliskrin30/notebookd124ebce8b
 - Демо-видео (до 3 минут): `<VIDEO_URL>`
 - Презентация: `<SLIDES_URL>`
+
+Репозиторий и зеркало. Основной репозиторий платформы — `github.com/BAITC-Hacks/hack-8539eaba-id-automation` (доступ для жюри
+запрошен у организаторов). Публичное зеркало того же коммита — `github.com/danieliskrin30-lang/soup-kernel-v7`; публичный
+ноутбук клонирует именно его, чтобы запускаться «Run All» без наших токенов.
 
 ## Команда (1 человек)
 
@@ -18,22 +22,22 @@
 
 ## Наши ядра
 
-Время и доля — `own_kernel_ms` прогона `solution_2` (цикл 37,34 с), по которому проверка №4
+Время и доля — `own_kernel_ms` прогона `solution_2` публичного ноутбука, по которому проверка №4
 берёт меньшую из двух долей.
 
 | Ядро (`@triton.jit`) | Файл | Что заменяет | Время, мс | Доля времени обучения |
 |---|---|---|---|---|
-| `ida_nf4_dequant_kernel` | `solution/fused_nf4.py` | распаковку NF4 в прямом и обратном проходе, 392 вызова на шаг | 2 047,0 | 5,48% |
-| `fused_rmsnorm_backward_kernel` | `solution/fused_rmsnorm.py` | `Qwen2RMSNorm`, обратный проход | 386,0 | 1,03% |
-| `fused_rmsnorm_forward_kernel` | `solution/fused_rmsnorm.py` | `Qwen2RMSNorm.forward` | 288,4 | 0,77% |
-| `ida_attn_prologue_fwd_kernel` | `solution/fused_attn_prologue.py` | RoPE q/k + приведение к fp16 + `repeat_kv` перед SDPA | 229,6 | 0,61% |
-| `ida_attn_prologue_bwd_kernel` | `solution/fused_attn_prologue.py` | то же в backward, сумма по группам GQA в fp32 | 219,3 | 0,59% |
-| `ida_entropy_argmax_kernel` | `solution/fused_metrics.py` | энтропию TRL и argmax для точности (без копии логитов) | 181,8 | 0,49% |
-| `fused_ce_backward_kernel` | `solution/fused_ce.py` | градиент кросс-энтропии, на месте в буфере логитов | 176,4 | 0,47% |
-| `fused_ce_forward_kernel` | `solution/fused_ce.py` | `LOSS_MAPPING["ForCausalLM"]` / `F.cross_entropy`, потери строк для `rewind.jsonl` | 101,9 | 0,27% |
-| **Итого, `solution_2`** | | | **3 630,4** | **9,72%** |
-| **Итого, `solution_1`** (цикл 35,82 с) | | | 3 609,9 | 10,08% |
-| **Проверка №4 `check_rules.py`** (меньшая из двух) | | | | **9,7%** (порог 5%) |
+| `ida_nf4_dequant_kernel` | `solution/fused_nf4.py` | распаковку NF4 в прямом и обратном проходе, 392 вызова на шаг | 2 061,5 | 5,09% |
+| `fused_rmsnorm_backward_kernel` | `solution/fused_rmsnorm.py` | `Qwen2RMSNorm`, обратный проход | 386,7 | 0,96% |
+| `fused_rmsnorm_forward_kernel` | `solution/fused_rmsnorm.py` | `Qwen2RMSNorm.forward` | 292,8 | 0,72% |
+| `ida_attn_prologue_fwd_kernel` | `solution/fused_attn_prologue.py` | RoPE q/k + приведение к fp16 + `repeat_kv` перед SDPA | 233,2 | 0,58% |
+| `ida_attn_prologue_bwd_kernel` | `solution/fused_attn_prologue.py` | то же в backward, сумма по группам GQA в fp32 | 220,1 | 0,54% |
+| `ida_entropy_argmax_kernel` | `solution/fused_metrics.py` | энтропию TRL и argmax для точности (без копии логитов) | 203,1 | 0,50% |
+| `fused_ce_backward_kernel` | `solution/fused_ce.py` | градиент кросс-энтропии, на месте в буфере логитов | 177,0 | 0,44% |
+| `fused_ce_forward_kernel` | `solution/fused_ce.py` | `LOSS_MAPPING["ForCausalLM"]` / `F.cross_entropy`, потери строк для `rewind.jsonl` | 113,2 | 0,28% |
+| **Итого, `solution_2`** | | | **3 687,7** | **9,11%** |
+| **Итого, `solution_1`** | | | | 9,24% |
+| **Проверка №4 `check_rules.py`** (меньшая из двух) | | | | **9,1%** (порог 5%) |
 
 Только в `precompile.py`, в обучении — запасной путь: `ida_rope_kernel`,
 `fused_entropy_forward_kernel`. Не запускаются: `fused_attention_*`, `fused_lm_head_*`,
@@ -65,25 +69,26 @@ fp16, MLP в fp16, логиты не переводятся в fp32, копии 
 
 | | База Soup | Наше | Отношение |
 |---|---|---|---|
-| Время `soup train`, с (медиана) | 78,34 | 61,15 | speedup ×1,281 |
+| Время `soup train`, с (медиана) | 86,27 | 66,10 | speedup ×1,305 |
 | Пик памяти GPU, МиБ | 14 345 | 5 879 | база/наше ×2,440 |
-| Eval loss (публичные строки) | 2,04966 | 2,04964 | −0,001% к базе |
+| Eval loss (публичные строки) | 2,04962 | 2,04962 | +0,000% к базе |
 
-Разброс по повторам: база 75,43 / 81,25 с (7,4%), решение 60,4 / 61,9 с (2,5%); пик памяти в
+Разброс по повторам: база 88,78 / 83,75 с (5,8%), решение 65,80 / 66,40 с (0,9%); пик памяти в
 обоих повторах одинаковый (14 345 и 5 879 МиБ).
 
-- [x] Все 10 проверок `harness/check_rules.py` пройдены — ALL CHECKS PASSED (доля ядер 9,7%,
-      кривая loss 0,01%, время ×0,781 и память ×0,410 от базы); 79 тестов Soup и 70 наших
+- [x] Все 10 проверок `harness/check_rules.py` пройдены — ALL CHECKS PASSED (доля ядер 9,1%,
+      время ×0,766 и память ×0,410 от базы); 79 тестов Soup и 70 наших
       тестов пройдены
 - [x] `README.md` переписан под решение: что сделано, как запустить, результаты, ограничения
-- [ ] Вставлены `<COMMIT_SHA>`, `<NOTEBOOK_URL>`, `<VIDEO_URL>`, `<SLIDES_URL>`
+- [x] Публичный ноутбук сохранён с результатами (ссылка выше)
+- [ ] Вставлены `<COMMIT_SHA>`, `<VIDEO_URL>`, `<SLIDES_URL>`
 
 ## Что покрывает презентация
 
 Какие операции заменены и почему (распаковка NF4 в обоих проходах, RMSNorm, пролог внимания с
 `is_causal` на cutlass, кросс-энтропия с градиентом на месте, энтропия + argmax; лишние
-fp32-копии эмбеддинга, MLP и логитов), как устроены ядра, результаты против базы (×1,281 по
-времени, ×2,440 по памяти, −0,001% по качеству, доля наших ядер 9,7%, разброс T4), ограничения
+fp32-копии эмбеддинга, MLP и логитов), как устроены ядра, результаты против базы (×1,305 по
+времени, ×2,440 по памяти, +0,000% по качеству, доля наших ядер 9,1%, разброс T4), ограничения
 и дальнейшие шаги.
 
 ## Ограничения
@@ -93,7 +98,7 @@ fp32-копии эмбеддинга, MLP и логитов), как устро�
 | Своё ядро внимания целиком (блочный online-softmax, GQA, маски) | на синтетике сходится; на реальных данных `max_diff` 0,24 при типичных 0,18, eval loss 2,32 вместо 2,05 | расхождение в строках, закрытых маской паддинга, и в последнем неполном блоке; ~30× медленнее встроенного из-за атомарных сложений. Вместо него — свой пролог + cutlass |
 | Своё умножение на словарь (940 × 1536 × 151 936) | тесты против `F.linear` проходят | не подключено: lm_head не квантован (связан с эмбеддингом), оставлен cuBLAS; скорость своего GEMM не измерена |
 | Не считать строки паддинга | оценка −8…−14 с, −1,5 ГБ | не делали: риск попасть под запрет `packing` / `padding_free` |
-| Скорость | ×1,281 к базе | порог 1,05 пройден; результаты других команд нам неизвестны |
+| Скорость | ×1,305 к базе | порог 1,05 пройден; результаты других команд нам неизвестны |
 
 **Дальше:** внимание без атомарных сложений (два ядра в стиле FlashAttention-2), k/v на 2 головах
 внутри SDPA и пересчёт входа LoRA в backward, свой forward LoRA.

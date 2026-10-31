@@ -4,14 +4,15 @@
 **Repository:** `github.com/BAITC-Hacks/hack-8539eaba-id-automation` · *Russian version (primary): `README.md`*
 
 Final run with the jury protocol: `harness/run_task.py --repeats 2` (base, solution, solution,
-base in one Kaggle T4 session), medians from `runs/result.json`:
+base in one Kaggle T4 session) — the saved version of the public notebook
+https://www.kaggle.com/code/danieliskrin30/notebookd124ebce8b, medians from `runs/result.json`:
 
 | Metric | Base Soup | Our solution | Ratio |
 |---|---|---|---|
-| `soup train` time, s (median of 2 runs) | 78.34 | **61.15** | **speedup 1.281×** |
+| `soup train` time, s (median of 2 runs) | 86.27 | **66.10** | **speedup 1.305×** |
 | Peak GPU memory (`nvidia-smi`), MiB | 14 345 | **5 879** | **base/ours 2.440×** |
-| Eval loss (public rows) | 2.04966 | 2.04964 | −0.001% |
-| Share of our kernels in training time (steps 3+) | — | **9.7%** (lower of two) | threshold ≥5% |
+| Eval loss (public rows) | 2.04962 | 2.04962 | +0.000% |
+| Share of our kernels in training time (steps 3+) | — | **9.1%** (lower of two) | threshold ≥5% |
 | `harness/check_rules.py` | — | **10/10 PASS** | — |
 | Soup tests (`tests/`) / our tests (`pytest solution`) | 79 | **79 passed / 70 passed** | — |
 
@@ -24,22 +25,23 @@ unchanged. `harness/`, `tests/`, `task/` are unchanged.
 
 ### 1.1. Our kernels that run in training
 
-Time is the harness `own_kernel_ms` (CUDA events, steps 3–64), run `solution_2` — the one check 4
-takes as the lower share (loop 37.34 s).
+Time is the harness `own_kernel_ms` (CUDA events, steps 3–64), run `solution_2` of the public
+notebook — the one check 4 takes as the lower share.
 
 | Kernel (`@triton.jit`) | File | Replaces | Launches per run | Time, ms | Share |
 |---|---|---|---|---|---|
-| `ida_nf4_dequant_kernel` | `fused_nf4.py` | NF4 unpacking in forward (`_dequant_linear_fallback`) and backward (`dequantize_4bit`) | 24 897 | 2 047.0 | 5.48% |
-| `fused_rmsnorm_backward_kernel` | `fused_rmsnorm.py` | `Qwen2RMSNorm`, backward | 3 585 | 386.0 | 1.03% |
-| `fused_rmsnorm_forward_kernel` | `fused_rmsnorm.py` | `Qwen2RMSNorm.forward` | 3 649 | 288.4 | 0.77% |
-| `ida_attn_prologue_fwd_kernel` | `fused_attn_prologue.py` | RoPE q/k + fp16 cast + `repeat_kv` for SDPA | 1 793 | 229.6 | 0.61% |
-| `ida_attn_prologue_bwd_kernel` | `fused_attn_prologue.py` | the same in backward, GQA group sum in fp32 | 1 793 | 219.3 | 0.59% |
-| `ida_entropy_argmax_kernel` | `fused_metrics.py` | TRL entropy and argmax for `mean_token_accuracy` | 65 | 181.8 | 0.49% |
-| `fused_ce_backward_kernel` | `fused_ce.py` | cross-entropy gradient (written into the logits buffer) | 66 | 176.4 | 0.47% |
-| `fused_ce_forward_kernel` | `fused_ce.py` | model cross-entropy and per-row losses for `rewind.jsonl` | 323 | 101.9 | 0.27% |
-| **Total** | | | | **3 630.4** | **9.72%** |
+| `ida_nf4_dequant_kernel` | `fused_nf4.py` | NF4 unpacking in forward (`_dequant_linear_fallback`) and backward (`dequantize_4bit`) | 24 897 | 2 061.5 | 5.09% |
+| `fused_rmsnorm_backward_kernel` | `fused_rmsnorm.py` | `Qwen2RMSNorm`, backward | 3 585 | 386.7 | 0.96% |
+| `fused_rmsnorm_forward_kernel` | `fused_rmsnorm.py` | `Qwen2RMSNorm.forward` | 3 649 | 292.8 | 0.72% |
+| `ida_attn_prologue_fwd_kernel` | `fused_attn_prologue.py` | RoPE q/k + fp16 cast + `repeat_kv` for SDPA | 1 793 | 233.2 | 0.58% |
+| `ida_attn_prologue_bwd_kernel` | `fused_attn_prologue.py` | the same in backward, GQA group sum in fp32 | 1 793 | 220.1 | 0.54% |
+| `ida_entropy_argmax_kernel` | `fused_metrics.py` | TRL entropy and argmax for `mean_token_accuracy` | 65 | 203.1 | 0.50% |
+| `fused_ce_backward_kernel` | `fused_ce.py` | cross-entropy gradient (written into the logits buffer) | 66 | 177.0 | 0.44% |
+| `fused_ce_forward_kernel` | `fused_ce.py` | model cross-entropy and per-row losses for `rewind.jsonl` | 323 | 113.2 | 0.28% |
+| **Total** | | | | **3 687.7** | **9.11%** |
 
-The other run (`solution_1`, loop 35.82 s): 3 609.9 ms = 10.08%.
+The other run (`solution_1`): 9.24%. Launch counts do not change between runs (same code,
+same batches).
 
 Only in `precompile.py` (1–2 launches; in training a fallback when the main path does not apply):
 `ida_rope_kernel`, `fused_entropy_forward_kernel`. Not launched: `fused_attention_*`,
@@ -113,16 +115,18 @@ loaded — check 2.
 
 ## 2. How to run
 
-Public Kaggle notebook (Run All without edits, results saved): **`<NOTEBOOK_URL>`**
-Final commit: **`<COMMIT_SHA>`**
+Public Kaggle notebook (Run All without edits, results saved): **https://www.kaggle.com/code/danieliskrin30/notebookd124ebce8b**
+The notebook clones the public mirror of the same commit, `github.com/danieliskrin30-lang/soup-kernel-v7`, so it runs without our
+tokens; the platform repository is `github.com/BAITC-Hacks/hack-8539eaba-id-automation`.
+Final commit (public mirror of the same code): **https://github.com/danieliskrin30-lang/soup-kernel-v7/commit/655a25344658badfdee1b8107cee6a9066ab68ef**
 
 On a clean Kaggle notebook (Accelerator: GPU T4, Internet: on):
 
 ```bash
 python -m pip install -q "soup-cli[train]==0.77.0" "transformers==5.16.1" "peft==0.20.0" \
     "trl==0.29.1" "bitsandbytes==0.50.2" "accelerate==1.14.0" pytest
-git clone https://github.com/BAITC-Hacks/hack-8539eaba-id-automation.git repo
-cd repo && git checkout <COMMIT_SHA>
+git clone https://github.com/danieliskrin30-lang/soup-kernel-v7.git repo
+cd repo && git checkout 655a25344658badfdee1b8107cee6a9066ab68ef
 python task/prepare_data.py                               # data/train.jsonl, data/eval_public.jsonl
 python -m pytest solution -q                              # our kernels vs references: 70 passed
 python harness/run_task.py --repeats 2                    # jury protocol, ~30 min
@@ -145,21 +149,21 @@ search: `python solution/bench_c.py` (not a test).
 
 | | Base Soup | Ours | Ratio |
 |---|---|---|---|
-| `soup train` time, s, median | 78.34 | 61.15 | speedup **1.281×** (−17.19 s) |
-| Training loop `train_loop_s`, s, median | 57.14 | 38.59 | 1.481× |
+| `soup train` time, s, median | 86.27 | 66.10 | speedup **1.305×** (−20.17 s) |
+| Training loop `train_loop_s`, s, median | 58.57 | 42.30 | 1.385× |
 | Peak GPU memory, MiB (max over runs) | 14 345 | 5 879 | base/ours **2.440×** (−8 466 MiB) |
-| Eval loss (public rows) | 2.04966 | 2.04964 | −0.001% |
-| Loss curve vs base (check 6) | — | first step 0.01%, mean 0.01% | tolerance 1% / 3% |
-| Share of our kernels (check 4) | — | 9.7% (runs: 10.08% and 9.72%) | threshold 5% |
-| Time / memory vs base (check 8) | — | ×0.781 / ×0.410 | tolerance ×1.10 |
+| Eval loss (public rows) | 2.04962 | 2.04962 | +0.000% |
+| Loss curve vs base (check 6) | — | PASS | tolerance 1% / 3% |
+| Share of our kernels (check 4) | — | 9.1% (runs: 9.24% and 9.11%) | threshold 5% |
+| Time / memory vs base (check 8) | — | ×0.766 / ×0.410 | tolerance ×1.10 |
 | Tests | 79 Soup | 79 passed; `pytest solution`: 70 passed | — |
 
 Spread over repeats:
 
 | Run | Time, s | Peak, MiB |
 |---|---|---|
-| base_1 / base_2 | 75.43 / 81.25 (spread 5.82 s, 7.4%) | 14 345 / 14 345 |
-| solution_1 / solution_2 | 60.4 / 61.9 (spread 1.5 s, 2.5%) | 5 879 / 5 879 |
+| base_1 / base_2 | 88.78 / 83.75 (spread 5.03 s, 5.8%) | 14 345 / 14 345 |
+| solution_1 / solution_2 | 65.80 / 66.40 (spread 0.60 s, 0.9%) | 5 879 / 5 879 |
 
 The base time varies more on a T4 than the solution time; the memory peak repeats to the MiB.
 
@@ -175,7 +179,7 @@ final run.
 | Own vocabulary projection (`fused_lm_head.py`, 940 × 1536 × 151 936, `dX` only) | tests vs `F.linear` pass | not wired in: lm_head is not quantized (tied to the embedding); lm_head stays on cuBLAS, our GEMM vs cuBLAS speed not measured |
 | Not computing padding rows (whole model or lm_head only) | estimate −8…−14 s and −1.5 GB | not done: risk of falling under the `packing` / `padding_free` ban |
 | Own 4-bit GEMM, cuBLASLt, fused q/k/v, other NF4/RMSNorm settings (`bench_c.py`) | 0…1% by estimate or benchmark | below the measurement spread |
-| Speed | 1.281× vs base | the 1.05 threshold is passed; other teams' results are unknown to us |
+| Speed | 1.305× vs base | the 1.05 threshold is passed; other teams' results are unknown to us |
 
 **Next:** attention without atomic adds (two FlashAttention-2-style kernels), keeping k/v at 2
 heads inside SDPA and recomputing the LoRA input in backward (≈ −0.4 GB by estimate), our own LoRA
@@ -221,7 +225,7 @@ rounding moved (`test_v4.py::test_mlp_fp16_bitwise_equal`, `torch.equal`).
 **Where results are not bit-identical:** SDPA with `is_causal` vs masked SDPA — fp16 rounding
 level on real rows; prologue dk/dv — summation order over 6 heads; cross-entropy, entropy and
 RMSNorm — fp32 summation order. All within the tolerances of checks 5–7 (result: eval loss
-−0.001%, curve 0.01%).
++0.000% vs base).
 
 **`precompile.py`.** Our kernels compile in a separate thread **of the same process** while Soup
 loads the model (done in ~9 s, before `Trainer.__init__`). The Triton cache is empty in every run
@@ -251,7 +255,7 @@ CC BY-NC 4.0). Starter kit — Apache-2.0, see `NOTICE`.
 - `precompile.py` is on by default and runs inside the same process and the same measurement;
   no background processes and no second CUDA streams in training.
 - All numbers in sections 1.1 and 3.1 come from `runs/result.json` and `runs/checks.json` of
-  the final `--repeats 2` run. Numbers from separate A/B runs are marked in 1.3. Anything in
+  the final `--repeats 2` run (the saved version of the public notebook). Numbers from separate A/B runs are marked in 1.3. Anything in
   neither is marked "not measured".
 
 ---

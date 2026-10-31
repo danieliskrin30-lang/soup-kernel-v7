@@ -4,14 +4,15 @@
 **Репозиторий:** `github.com/BAITC-Hacks/hack-8539eaba-id-automation` · *English version: `README_EN.md`*
 
 Финальный прогон по протоколу жюри: `harness/run_task.py --repeats 2` (база, решение, решение,
-база в одной сессии Kaggle T4), медианы из `runs/result.json`:
+база в одной сессии Kaggle T4) — сохранённая версия публичного ноутбука
+https://www.kaggle.com/code/danieliskrin30/notebookd124ebce8b, медианы из `runs/result.json`:
 
 | Показатель | База Soup | Наше решение | Отношение |
 |---|---|---|---|
-| Время `soup train`, с (медиана 2 прогонов) | 78,34 | **61,15** | **speedup 1,281×** |
+| Время `soup train`, с (медиана 2 прогонов) | 86,27 | **66,10** | **speedup 1,305×** |
 | Пик памяти GPU (`nvidia-smi`), МиБ | 14 345 | **5 879** | **база/наше 2,440×** |
-| Eval loss (публичные строки) | 2,04966 | 2,04964 | −0,001% |
-| Доля наших ядер во времени обучения (с 3-го шага) | — | **9,7%** (меньшая из двух) | порог ≥5% |
+| Eval loss (публичные строки) | 2,04962 | 2,04962 | +0,000% |
+| Доля наших ядер во времени обучения (с 3-го шага) | — | **9,1%** (меньшая из двух) | порог ≥5% |
 | `harness/check_rules.py` | — | **10/10 PASS** | — |
 | Тесты Soup (`tests/`) / наши тесты (`pytest solution`) | 79 | **79 passed / 70 passed** | — |
 
@@ -24,22 +25,23 @@
 
 ### 1.1. Наши ядра, которые работают в обучении
 
-Время — `own_kernel_ms` харнесса (CUDA-события, шаги 3–64), прогон `solution_2` — тот, по
-которому проверка №4 берёт меньшую долю (цикл 37,34 с).
+Время — `own_kernel_ms` харнесса (CUDA-события, шаги 3–64), прогон `solution_2` публичного
+ноутбука — тот, по которому проверка №4 берёт меньшую долю.
 
 | Ядро (`@triton.jit`) | Файл | Что заменяет | Запусков за прогон | Время, мс | Доля |
 |---|---|---|---|---|---|
-| `ida_nf4_dequant_kernel` | `fused_nf4.py` | распаковку NF4 в прямом (`_dequant_linear_fallback`) и обратном (`dequantize_4bit`) проходе | 24 897 | 2 047,0 | 5,48% |
-| `fused_rmsnorm_backward_kernel` | `fused_rmsnorm.py` | `Qwen2RMSNorm`, backward | 3 585 | 386,0 | 1,03% |
-| `fused_rmsnorm_forward_kernel` | `fused_rmsnorm.py` | `Qwen2RMSNorm.forward` | 3 649 | 288,4 | 0,77% |
-| `ida_attn_prologue_fwd_kernel` | `fused_attn_prologue.py` | RoPE q/k + приведение к fp16 + `repeat_kv` для SDPA | 1 793 | 229,6 | 0,61% |
-| `ida_attn_prologue_bwd_kernel` | `fused_attn_prologue.py` | то же в backward, сумма по группам GQA в fp32 | 1 793 | 219,3 | 0,59% |
-| `ida_entropy_argmax_kernel` | `fused_metrics.py` | энтропию TRL и argmax для `mean_token_accuracy` | 65 | 181,8 | 0,49% |
-| `fused_ce_backward_kernel` | `fused_ce.py` | градиент кросс-энтропии (пишется в буфер логитов) | 66 | 176,4 | 0,47% |
-| `fused_ce_forward_kernel` | `fused_ce.py` | кросс-энтропию модели и потери строк для `rewind.jsonl` | 323 | 101,9 | 0,27% |
-| **Итого** | | | | **3 630,4** | **9,72%** |
+| `ida_nf4_dequant_kernel` | `fused_nf4.py` | распаковку NF4 в прямом (`_dequant_linear_fallback`) и обратном (`dequantize_4bit`) проходе | 24 897 | 2 061,5 | 5,09% |
+| `fused_rmsnorm_backward_kernel` | `fused_rmsnorm.py` | `Qwen2RMSNorm`, backward | 3 585 | 386,7 | 0,96% |
+| `fused_rmsnorm_forward_kernel` | `fused_rmsnorm.py` | `Qwen2RMSNorm.forward` | 3 649 | 292,8 | 0,72% |
+| `ida_attn_prologue_fwd_kernel` | `fused_attn_prologue.py` | RoPE q/k + приведение к fp16 + `repeat_kv` для SDPA | 1 793 | 233,2 | 0,58% |
+| `ida_attn_prologue_bwd_kernel` | `fused_attn_prologue.py` | то же в backward, сумма по группам GQA в fp32 | 1 793 | 220,1 | 0,54% |
+| `ida_entropy_argmax_kernel` | `fused_metrics.py` | энтропию TRL и argmax для `mean_token_accuracy` | 65 | 203,1 | 0,50% |
+| `fused_ce_backward_kernel` | `fused_ce.py` | градиент кросс-энтропии (пишется в буфер логитов) | 66 | 177,0 | 0,44% |
+| `fused_ce_forward_kernel` | `fused_ce.py` | кросс-энтропию модели и потери строк для `rewind.jsonl` | 323 | 113,2 | 0,28% |
+| **Итого** | | | | **3 687,7** | **9,11%** |
 
-Второй прогон (`solution_1`, цикл 35,82 с): 3 609,9 мс = 10,08%.
+Второй прогон (`solution_1`): 9,24%. Число запусков от прогона к прогону не меняется
+(тот же код и те же батчи).
 
 Только в `precompile.py` (по 1–2 запуска, в обучении — запасной путь, если основной не применим):
 `ida_rope_kernel`, `fused_entropy_forward_kernel`. Не запускаются: `fused_attention_*`,
@@ -112,16 +114,18 @@ fp16-логиты, считает в fp32 в регистрах. Градиен�
 
 ## 2. Как запустить
 
-Публичный Kaggle-ноутбук (Run All без правок, с сохранёнными результатами): **`<NOTEBOOK_URL>`**
-Финальный коммит: **`<COMMIT_SHA>`**
+Публичный Kaggle-ноутбук (Run All без правок, с сохранёнными результатами): **https://www.kaggle.com/code/danieliskrin30/notebookd124ebce8b**
+Ноутбук клонирует публичное зеркало того же коммита `github.com/danieliskrin30-lang/soup-kernel-v7`, чтобы запускаться без
+наших токенов; основной репозиторий платформы — `github.com/BAITC-Hacks/hack-8539eaba-id-automation`.
+Финальный коммит (публичное зеркало того же кода): **https://github.com/danieliskrin30-lang/soup-kernel-v7/commit/655a25344658badfdee1b8107cee6a9066ab68ef**
 
 На чистом Kaggle-ноутбуке (Accelerator: GPU T4, Internet: on):
 
 ```bash
 python -m pip install -q "soup-cli[train]==0.77.0" "transformers==5.16.1" "peft==0.20.0" \
     "trl==0.29.1" "bitsandbytes==0.50.2" "accelerate==1.14.0" pytest
-git clone https://github.com/BAITC-Hacks/hack-8539eaba-id-automation.git repo
-cd repo && git checkout <COMMIT_SHA>
+git clone https://github.com/danieliskrin30-lang/soup-kernel-v7.git repo
+cd repo && git checkout 655a25344658badfdee1b8107cee6a9066ab68ef
 python task/prepare_data.py                               # data/train.jsonl, data/eval_public.jsonl
 python -m pytest solution -q                              # наши ядра против эталонов: 70 passed
 python harness/run_task.py --repeats 2                    # протокол жюри, ~30 мин
@@ -144,21 +148,21 @@ python harness/score.py runs/result.json                  # отношения s
 
 | | База Soup | Наше | Отношение |
 |---|---|---|---|
-| Время `soup train`, с, медиана | 78,34 | 61,15 | speedup **1,281×** (−17,19 с) |
-| Цикл обучения `train_loop_s`, с, медиана | 57,14 | 38,59 | 1,481× |
+| Время `soup train`, с, медиана | 86,27 | 66,10 | speedup **1,305×** (−20,17 с) |
+| Цикл обучения `train_loop_s`, с, медиана | 58,57 | 42,30 | 1,385× |
 | Пик памяти GPU, МиБ (максимум по прогонам) | 14 345 | 5 879 | база/наше **2,440×** (−8 466 МиБ) |
-| Eval loss (публичные строки) | 2,04966 | 2,04964 | −0,001% |
-| Кривая loss против базы (проверка №6) | — | первый шаг 0,01%, среднее 0,01% | допуск 1% / 3% |
-| Доля наших ядер (проверка №4) | — | 9,7% (прогоны: 10,08% и 9,72%) | порог 5% |
-| Время / память против базы (проверка №8) | — | ×0,781 / ×0,410 | допуск ×1,10 |
+| Eval loss (публичные строки) | 2,04962 | 2,04962 | +0,000% |
+| Кривая loss против базы (проверка №6) | — | PASS | допуск 1% / 3% |
+| Доля наших ядер (проверка №4) | — | 9,1% (прогоны: 9,24% и 9,11%) | порог 5% |
+| Время / память против базы (проверка №8) | — | ×0,766 / ×0,410 | допуск ×1,10 |
 | Тесты | 79 Soup | 79 passed; `pytest solution`: 70 passed | — |
 
 Разброс по повторам:
 
 | Прогон | Время, с | Пик, МиБ |
 |---|---|---|
-| base_1 / base_2 | 75,43 / 81,25 (разброс 5,82 с, 7,4%) | 14 345 / 14 345 |
-| solution_1 / solution_2 | 60,4 / 61,9 (разброс 1,5 с, 2,5%) | 5 879 / 5 879 |
+| base_1 / base_2 | 88,78 / 83,75 (разброс 5,03 с, 5,8%) | 14 345 / 14 345 |
+| solution_1 / solution_2 | 65,80 / 66,40 (разброс 0,60 с, 0,9%) | 5 879 / 5 879 |
 
 Время базы на T4 гуляет сильнее, чем время решения; пик памяти воспроизводится до мегабайта.
 
@@ -173,7 +177,7 @@ python harness/score.py runs/result.json                  # отношения s
 | Своё умножение на словарь (`fused_lm_head.py`, 940 × 1536 × 151 936, только `dX`) | тесты против `F.linear` проходят | не подключено: lm_head не квантован (связан с эмбеддингом); lm_head оставлен cuBLAS, скорость своего GEMM против cuBLAS не измерена |
 | Не считать строки паддинга (во всей модели или только в lm_head) | оценка −8…−14 с и −1,5 ГБ | не делали: риск попасть под запрет `packing` / `padding_free` |
 | Свой 4-битный GEMM, cuBLASLt, слияние q/k/v, другие настройки NF4/RMSNorm (`bench_c.py`) | 0…1% по оценке или бенчмарку | ниже разброса замера |
-| Скорость | 1,281× к базе | порог 1,05 пройден; результаты других команд нам неизвестны |
+| Скорость | 1,305× к базе | порог 1,05 пройден; результаты других команд нам неизвестны |
 
 **Дальше:** внимание без атомарных сложений (два ядра в стиле FlashAttention-2), хранение k/v
 в SDPA на 2 головах и пересчёт входа LoRA в backward (по оценке −0,4 ГБ), свой forward LoRA с
@@ -218,7 +222,7 @@ fp32 без изменения значений (fp16 → fp32 → fp16 без �
 **Где совпадение не побитное:** SDPA с `is_causal` против SDPA с маской — на уровне округления
 fp16 на реальных строках; dk/dv пролога — порядок суммы по 6 головам; кросс-энтропия, энтропия и
 RMSNorm — порядок суммирования в fp32. Всё в пределах допусков проверок №5–№7 (итог: eval loss
-−0,001%, кривая 0,01%).
++0,000% к базе).
 
 **`precompile.py`.** Наши ядра компилируются в отдельном потоке **того же процесса**, пока Soup
 грузит модель (готово за ~9 с, до `Trainer.__init__`). Кэш Triton пустой в каждом прогоне
@@ -248,7 +252,7 @@ RMSNorm — порядок суммирования в fp32. Всё в пред�
 - `precompile.py` включён по умолчанию и работает внутри того же процесса и того же замера;
   фоновых процессов и вторых CUDA-потоков в обучении нет.
 - Все числа в разделах 1.1 и 3.1 — из `runs/result.json` и `runs/checks.json` финального
-  прогона `--repeats 2`. Числа из отдельных A/B-прогонов помечены в 1.3. Чего нет ни там, ни
+  прогона `--repeats 2` (сохранённая версия публичного ноутбука). Числа из отдельных A/B-прогонов помечены в 1.3. Чего нет ни там, ни
   там, помечено «не измерено».
 
 ---
